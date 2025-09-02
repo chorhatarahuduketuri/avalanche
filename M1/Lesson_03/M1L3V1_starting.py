@@ -5,6 +5,31 @@ import re
 import os
 
 
+def clean_text(text: str) -> str:
+    """
+    Clean the input text by:
+    1. Stripping leading/trailing whitespace
+    2. Removing all punctuation
+    3. Converting to lowercase
+
+    Args:
+        text: The string to clean.
+
+    Returns:
+        A cleaned, lowercase string without punctuation.
+    """
+    # 1. Strip leading/trailing whitespace
+    cleaned = text.strip()
+
+    # 2. Remove punctuation (anything that is not a word character or whitespace)
+    cleaned = re.sub(r'[^\w\s]', '', cleaned)
+
+    # 3. Convert to lowercase
+    cleaned = cleaned.lower()
+
+    return cleaned
+
+
 # Helper function to get dataset path
 def get_dataset_path():
     # Get the current script directory
@@ -17,3 +42,38 @@ def get_dataset_path():
 st.title("Hello, GenAI!")
 st.write("This is your GenAI-powered data processing app.")
 
+col1, col2 = st.columns(2)
+
+with col1:
+    if st.button("Ingest Dataset"):
+        try:
+            csv_path = get_dataset_path()
+            # st.session_state is basically a dict that gets saved between streamlit reruns/actions/etc
+            st.session_state["df"] = pd.read_csv(csv_path)
+            st.success("Dataset loaded successfully! Yay!")
+        except FileNotFoundError:
+            st.error("Dataset not found. Please check the file path. ")
+
+
+with col2:
+    if st.button("Parse Reviews"):
+        if "df" in st.session_state:
+            st.session_state["df"]["CLEANED_SUMMARY"] = st.session_state["df"]["SUMMARY"].apply(clean_text)
+            st.success("Reviews parsed and cleaned successfully!")
+        else:
+            st.warning("Please ingest the dataset first!")
+
+
+# If dataset exists and is loaded, display it
+if "df" in st.session_state:
+    st.subheader("Filter by Product")
+    product = st.selectbox("Choose a product", ["All Products"] + list(st.session_state["df"]["PRODUCT"].unique()))
+
+    st.subheader("Dataset Preview")
+    if product != "All Products":
+        filtered_df = st.session_state["df"][st.session_state["df"]["PRODUCT"] == product]
+    else:
+        filtered_df = st.session_state["df"].head()
+    st.dataframe(filtered_df)
+else:
+    st.write("No dataset loaded yet!")
