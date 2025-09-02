@@ -6,35 +6,16 @@ import os
 
 
 def clean_text(text: str) -> str:
-    """
-    Clean the input text by:
-    1. Stripping leading/trailing whitespace
-    2. Removing all punctuation
-    3. Converting to lowercase
-
-    Args:
-        text: The string to clean.
-
-    Returns:
-        A cleaned, lowercase string without punctuation.
-    """
-    # 1. Strip leading/trailing whitespace
     cleaned = text.strip()
-
-    # 2. Remove punctuation (anything that is not a word character or whitespace)
     cleaned = re.sub(r'[^\w\s]', '', cleaned)
-
-    # 3. Convert to lowercase
     cleaned = cleaned.lower()
-
     return cleaned
 
 
-# Helper function to get dataset path
 def get_dataset_path():
-    # Get the current script directory
+    # get current script directory
     current_dir = os.path.dirname(os.path.abspath(__file__))
-    # Construct the path to the CSV file
+    # construct path to CSV file
     csv_path = os.path.join(current_dir, "..", "..", "data", "customer_reviews.csv")
     return csv_path
 
