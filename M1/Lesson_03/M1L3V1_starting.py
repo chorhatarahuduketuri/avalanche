@@ -75,5 +75,9 @@ if "df" in st.session_state:
     else:
         filtered_df = st.session_state["df"].head()
     st.dataframe(filtered_df)
+
+    st.subheader("Sentiment Score by Product")
+    grouped = st.session_state["df"].groupby(["PRODUCT"])["SENTIMENT_SCORE"].mean()
+    st.bar_chart(grouped)
 else:
     st.write("No dataset loaded yet!")
